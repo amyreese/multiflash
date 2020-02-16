@@ -30,5 +30,8 @@ test:
 	python -m coverage report
 	python -m mypy multiflash
 
+app:
+	python3 -m PyInstaller --name Multiflash --noconfirm --windowed scripts/run.py
+
 clean:
 	rm -rf build dist README MANIFEST *.egg-info

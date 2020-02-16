@@ -2,7 +2,7 @@
 # Licensed under the MIT License
 
 import click
-from .dataset import connect, set_default, Facts, Fact
+from multiflash.dataset import connect, set_default, Facts, Fact
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]},)
@@ -12,7 +12,8 @@ from .dataset import connect, set_default, Facts, Fact
     type=click.Path(dir_okay=False, file_okay=True, writable=True, resolve_path=True),
     default=None,
 )
-def multiflash(db):
+@click.pass_context
+def multiflash(ctx, db):
     """Interact with the multiflash database"""
     if db is not None:
         set_default(db)
@@ -30,6 +31,14 @@ def add(class_name, topic, keyword, description, values):
     db, engine = connect()
     db.execute(*engine.prepare(Facts.insert().values(fact)))
     db.commit()
+
+
+@multiflash.command("gui")
+def gui():
+    """Start the Multiflash GUI"""
+    from multiflash.gui import start
+
+    start()
 
 
 if __name__ == "__main__":
