@@ -5,7 +5,7 @@ dev:
 	python setup.py develop
 
 setup:
-	python -m pip install -Ur requirements-dev.txt
+	python -m pip install -Ur requirements.txt requirements-dev.txt
 
 venv:
 	python -m venv .venv

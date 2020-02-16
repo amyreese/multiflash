@@ -27,5 +27,6 @@ setup(
     package_data={"multiflash": ["py.typed"]},
     python_requires=">=3.7",
     setup_requires=["setuptools>=38.6.0"],
-    install_requires=[],
+    install_requires=["attrs", "PySide2"],
+    entry_points={"console_scripts": ["multiflash = multiflash.__main__:main"]},
 )
