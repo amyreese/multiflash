@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import appdirs
-from aql import Column, Table, table
+from aql import Column, Table
 from aql.column import Unique
 from aql.engines.sqlite import SqliteEngine
 from attr import dataclass

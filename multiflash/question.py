@@ -5,6 +5,7 @@ import random
 from typing import List
 
 from attr import dataclass
+
 from multiflash.dataset import Fact
 
 
@@ -52,6 +53,7 @@ class GuessKeyword(Question):
 @dataclass
 class GuessValue(Question):
     full_answer: bool = False
+    value: str = ""
 
     def ask(self) -> str:
         return f"{self.correct.keyword!r} ({self.correct.description}) means"

@@ -1,13 +1,13 @@
 # Copyright 2020 John Reese
 # Licensed under the MIT License
 
-import textwrap
-import click
 import random
 from typing import List, Set
 
+import click
+
 from multiflash.dataset import Fact, Facts, connect
-from multiflash.question import GuessValue, GuessKeyword, Question
+from multiflash.question import GuessKeyword, GuessValue, Question
 
 
 class Quiz:
@@ -69,9 +69,8 @@ class Quiz:
             click.echo("Correct!")
             return True
 
-        else:
-            click.echo(f"Incorrect. Correct answer was {answer!r}")
-            return False
+        click.echo(f"Incorrect. Correct answer was {answer!r}")
+        return False
 
     def start(self):
         questions = self.generate()
