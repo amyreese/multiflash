@@ -2,7 +2,8 @@
 # Licensed under the MIT License
 
 import random
-from PySide2 import QtCore, QtWidgets, QtGui
+
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class MultiflashWidget(QtWidgets.QWidget):

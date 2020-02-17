@@ -6,15 +6,16 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import appdirs
-from attr import dataclass
-from aql import table, Table, Column
+from aql import Column, Table, table
+from aql.column import Unique
 from aql.engines.sqlite import SqliteEngine
+from attr import dataclass
 
 DEFAULT_LOCATION: Optional[str] = None
 CREATED: bool = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class Fact:
     class_name: str
     topic: str
@@ -22,15 +23,20 @@ class Fact:
     description: str
     values: str
 
+    @property
+    def value_list(self) -> List[str]:
+        return self.values.split("|||")
+
 
 Facts = Table(
     "facts",
     [
-        Column("class", str),
+        Column("class_name", str),
         Column("topic", str),
         Column("keyword", str),
         Column("description", str),
         Column("values", str),
+        Unique("class_name", "topic", "keyword"),
     ],
     source=Fact,
 )
