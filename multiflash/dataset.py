@@ -56,8 +56,6 @@ def connect(location: Optional[str] = None) -> Tuple[sqlite3.Connection, SqliteE
     if not loc.parent.exists():
         loc.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"connecting to {loc!r}")
-
     db = sqlite3.connect(loc)
     db.row_factory = sqlite3.Row
     engine = SqliteEngine()

@@ -22,17 +22,48 @@ def multiflash(ctx, db):
 
 
 @multiflash.command("add")
-@click.argument("class_name")
-@click.argument("topic")
-@click.argument("keyword")
-@click.argument("description")
-@click.argument("values", nargs=-1)
-def add(class_name, topic, keyword, description, values):
-    """Add a new fact to the dataset"""
-    fact = Fact(class_name, topic, keyword, description, "|||".join(values))
+def add():
+    """Add new facts to the dataset"""
     db, engine = connect()
-    db.execute(*engine.prepare(Facts.insert().values(fact)))
-    db.commit()
+
+    query = Facts.select(Facts.class_name)
+    cursor = db.execute(*engine.prepare(query))
+    rows = cursor.fetchall()
+    if rows:
+        class_name = rows[-1]["class_name"]
+    else:
+        class_name = ""
+    class_name = click.prompt("Class name", default=class_name).strip()
+
+    query = Facts.select(Facts.topic).where(Facts.class_name == class_name)
+    cursor = db.execute(*engine.prepare(query))
+    rows = cursor.fetchall()
+    if rows:
+        topic = rows[-1]["topic"]
+    else:
+        topic = ""
+    topic = click.prompt("Topic", default=topic).strip()
+
+    while True:
+        keyword = input("\n  Keyword [done]: ").strip()
+        if not keyword:
+            break
+        description = click.prompt("    Description").strip()
+
+        values = set()
+        while True:
+            value = input("    Value [done]: ").strip()
+            if not value:
+                break
+            values.add(value)
+
+        try:
+            fact = Fact(class_name, topic, keyword, description, "|||".join(values))
+            query = Facts.insert().values(fact)
+            db.execute(*engine.prepare(query))
+            db.commit()
+        except Exception as e:
+            click.echo(f"Failed to add fact: {e}")
 
 
 @multiflash.command("list")
@@ -55,9 +86,24 @@ def list(class_name):
 
 
 @multiflash.command("quiz")
-@click.argument("class_name")
+@click.argument("class_name", required=False)
 def quiz(class_name):
     """Take a quiz"""
+    if not class_name:
+        db, engine = connect()
+        query = Facts.select(Facts.class_name).groupby(Facts.class_name)
+        cursor = db.execute(*engine.prepare(query))
+        rows = cursor.fetchall()
+        class_names = sorted(row["class_name"] for row in rows)
+        if not class_names:
+            click.echo("Add some facts first")
+            click.exit()
+
+        if len(class_names) == 1:
+            class_name = class_names[0]
+        else:
+            class_name = click.prompt("Class name", type=click.Choice(class_names))
+
     quiz = Quiz(class_name)
     quiz.start()
 

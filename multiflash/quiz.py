@@ -11,11 +11,11 @@ from multiflash.question import GuessValue, GuessKeyword, Question
 
 
 class Quiz:
-    def __init__(self, class_name: str, num_choices: int = 3):
+    def __init__(self, class_name: str, num_choices: int = 4):
         self.class_name = class_name
         self.num_choices = num_choices
 
-        self.counter: int = 1
+        self.counter: int = 0
         self.questions: List[Question] = []
 
         self._facts: Set[Fact] = set()
@@ -52,15 +52,18 @@ class Quiz:
         answer = question.answer()
 
         for choice in random.sample(choices, len(choices)):
-            if choice == answer:
-                answer = chr(letter)
-            click.echo(f"  {chr(letter)}: {choice}")
-            letter += 1
+            if question.full_answer:
+                click.echo(f"  • {choice}")
+            else:
+                if choice == answer:
+                    answer = chr(letter)
+                click.echo(f"  {chr(letter)}) {choice}")
+                letter += 1
 
         if question.full_answer:
-            response = click.prompt("\nAnswer (full keyword): ", prompt_suffix="")
+            response = click.prompt("\nAnswer: ", prompt_suffix="")
         else:
-            response = click.prompt("\nAnswer (letter): ", prompt_suffix="")
+            response = click.prompt("\nAnswer: ", prompt_suffix="")
 
         if response.lower() == answer.lower():
             click.echo("Correct!")
@@ -74,8 +77,10 @@ class Quiz:
         questions = self.generate()
         random.shuffle(questions)
 
+        self.counter = 0
         score = 0
         for question in questions:
+            self.counter += 1
             correct = self.ask(question)
             if correct:
                 score += 1
