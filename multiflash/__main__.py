@@ -4,6 +4,7 @@
 import click
 
 from multiflash.dataset import Fact, Facts, connect, set_default
+from multiflash.question import FillKeyword
 from multiflash.quiz import Quiz
 
 
@@ -87,7 +88,9 @@ def list(class_name):
 
 @multiflash.command("quiz")
 @click.argument("class_name", required=False)
-def quiz(class_name):
+@click.option("--harder", is_flag=True, help="Don't show any choices")
+@click.option("--limit", type=int, default=None, help="Maximum number of questions")
+def quiz(class_name, harder, limit):
     """Take a quiz"""
     if not class_name:
         db, engine = connect()
@@ -104,7 +107,11 @@ def quiz(class_name):
         else:
             class_name = click.prompt("Class name", type=click.Choice(class_names))
 
-    quiz = Quiz(class_name)
+    if harder:
+        quiz = Quiz(class_name, question_limit=limit, question_types=[FillKeyword])
+    else:
+        quiz = Quiz(class_name, question_limit=limit)
+
     quiz.start()
 
 

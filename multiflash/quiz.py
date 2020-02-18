@@ -2,18 +2,28 @@
 # Licensed under the MIT License
 
 import random
-from typing import List, Set
+from typing import List, Set, Type, Optional
 
 import click
 
 from multiflash.dataset import Fact, Facts, connect
 from multiflash.question import GuessKeyword, GuessValue, Question
 
+DEFAULT_QUESTION_TYPES = (GuessKeyword, GuessValue)
+
 
 class Quiz:
-    def __init__(self, class_name: str, num_choices: int = 4):
+    def __init__(
+        self,
+        class_name: str,
+        num_choices: int = 4,
+        question_limit: Optional[int] = None,
+        question_types: List[Type[Question]] = None,
+    ):
         self.class_name = class_name
         self.num_choices = num_choices
+        self.question_limit = question_limit
+        self.question_types = question_types or DEFAULT_QUESTION_TYPES
 
         self.counter: int = 0
         self.questions: List[Question] = []
@@ -36,11 +46,14 @@ class Quiz:
         all_facts = self.facts
         num_incorrect = self.num_choices - 1
 
-        for guess_type in (GuessKeyword, GuessValue):
+        for guess_type in self.question_types:
             for fact in all_facts:
                 incorrect = random.sample(all_facts - {fact}, num_incorrect)
                 q = guess_type(fact, incorrect)
                 questions.append(q)
+
+        if self.question_limit:
+            questions = questions[: self.question_limit]
 
         return questions
 

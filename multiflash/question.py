@@ -51,6 +51,14 @@ class GuessKeyword(Question):
 
 
 @dataclass
+class FillKeyword(GuessKeyword):
+    """Given a value, fill in the keyword without choices."""
+
+    def choices(self) -> List[str]:
+        return []
+
+
+@dataclass
 class GuessValue(Question):
     full_answer: bool = False
     value: str = ""
