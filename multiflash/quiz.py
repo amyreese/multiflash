@@ -52,6 +52,8 @@ class Quiz:
                 q = guess_type(fact, incorrect)
                 questions.append(q)
 
+        random.shuffle(questions)
+
         if self.question_limit:
             questions = questions[: self.question_limit]
 
@@ -64,7 +66,7 @@ class Quiz:
         choices = question.choices()
         answer = question.answer()
 
-        for choice in random.sample(choices, len(choices)):
+        for choice in choices:
             if question.full_answer:
                 click.echo(f"  • {choice}")
             else:
