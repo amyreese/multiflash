@@ -2,4 +2,4 @@
 # Licensed under the MIT License
 
 __author__ = "John Reese"
-__version__ = "0.3.0"
+__version__ = "0.3.1"
