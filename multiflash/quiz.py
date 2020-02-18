@@ -2,7 +2,7 @@
 # Licensed under the MIT License
 
 import random
-from typing import List, Set, Type, Optional
+from typing import List, Optional, Set, Type
 
 import click
 
