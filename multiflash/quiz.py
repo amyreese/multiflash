@@ -60,10 +60,7 @@ class Quiz:
                 click.echo(f"  {chr(letter)}) {choice}")
                 letter += 1
 
-        if question.full_answer:
-            response = click.prompt("\nAnswer: ", prompt_suffix="")
-        else:
-            response = click.prompt("\nAnswer: ", prompt_suffix="")
+        response = click.prompt("\nAnswer: ", prompt_suffix="").strip()
 
         if response.lower() == answer.lower():
             click.echo("Correct!")
