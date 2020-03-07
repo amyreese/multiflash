@@ -24,11 +24,13 @@ class Quiz:
     def __init__(
         self,
         class_name: str,
+        topic_list: Optional[List[str]] = None,
         num_choices: int = 4,
         question_limit: Optional[int] = None,
         question_types: List[Type[Question]] = None,
     ):
         self.class_name = class_name
+        self.topic_list = topic_list
         self.num_choices = num_choices
         self.question_limit = question_limit
         self.question_types = question_types or DEFAULT_QUESTION_TYPES
@@ -43,6 +45,8 @@ class Quiz:
         if not self._facts:
             db, engine = connect()
             query = Facts.select().where(Facts.class_name == self.class_name)
+            if self.topic_list:
+                query.where(Facts.topic.in_(self.topic_list))
             cursor = db.execute(*engine.prepare(query))
             rows = cursor.fetchall()
             self._facts.update(Fact(**row) for row in rows)
