@@ -2,6 +2,7 @@
 # Licensed under the MIT License
 
 import random
+from functools import partial
 from typing import List, Optional, Set, Type
 
 import click
@@ -10,6 +11,9 @@ from multiflash.dataset import Fact, Facts, connect
 from multiflash.question import GuessKeyword, GuessValue, Question
 
 DEFAULT_QUESTION_TYPES = (GuessKeyword, GuessValue)
+
+
+bold = partial(click.style, bold=True)
 
 
 class Quiz:
@@ -60,7 +64,7 @@ class Quiz:
         return questions
 
     def ask(self, question: Question) -> bool:
-        click.echo(f"\nQuestion {self.counter}: {question.ask()}\n")
+        click.echo(f"\nQuestion {self.counter}: {bold(question.ask())}\n")
 
         letter = ord("a")
         choices = question.choices()
@@ -68,20 +72,20 @@ class Quiz:
 
         for choice in choices:
             if question.full_answer:
-                click.echo(f"  • {choice}")
+                click.echo(f"  • {bold(choice)}")
             else:
                 if choice == answer:
                     answer = chr(letter)
-                click.echo(f"  {chr(letter)}) {choice}")
+                click.echo(f"  {bold(chr(letter))}) {choice}")
                 letter += 1
 
         response = click.prompt("\nAnswer: ", prompt_suffix="").strip()
 
         if response.lower() == answer.lower():
-            click.echo("Correct!")
+            click.secho("Correct!", fg="green")
             return True
 
-        click.echo(f"Incorrect. Correct answer was {answer!r}")
+        click.secho(f"Incorrect. Correct answer was {answer!r}", fg="red")
         return False
 
     def start(self):
@@ -96,4 +100,9 @@ class Quiz:
             if correct:
                 score += 1
 
-        click.echo(f"\nQuiz complete. You scored {score} / {len(questions)} correct!")
+        percent = (score / len(questions)) * 100
+        click.secho(
+            f"\nQuiz complete. You scored {score} / {len(questions)} "
+            f"({percent:.0f}%) correct!",
+            bold=True,
+        )
