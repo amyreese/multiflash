@@ -71,6 +71,7 @@ class GuessValue(Question):
         values = [self.value] + [
             random.choice(fact.value_list) for fact in self.incorrect
         ]
+        random.shuffle(values)
         return values
 
     def answer(self) -> str:
