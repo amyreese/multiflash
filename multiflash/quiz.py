@@ -16,6 +16,10 @@ DEFAULT_QUESTION_TYPES = (GuessKeyword, GuessValue)
 bold = partial(click.style, bold=True)
 
 
+class QuizError(Exception):
+    pass
+
+
 class Quiz:
     def __init__(
         self,
@@ -48,6 +52,8 @@ class Quiz:
         questions: List[Question] = []
 
         all_facts = self.facts
+        if len(all_facts) < self.num_choices:
+            raise QuizError("Not enough facts for meaningful quiz")
         num_incorrect = self.num_choices - 1
 
         for guess_type in self.question_types:
