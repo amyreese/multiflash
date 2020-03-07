@@ -3,9 +3,10 @@
 
 import click
 
+from multiflash.common import find_numbers, natural_sort
 from multiflash.dataset import Fact, Facts, connect, set_default
 from multiflash.question import FillKeyword
-from multiflash.quiz import Quiz
+from multiflash.quiz import Quiz, QuizError
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]},)
@@ -107,12 +108,46 @@ def quiz(class_name, harder, limit):
         else:
             class_name = click.prompt("Class name", type=click.Choice(class_names))
 
-    if harder:
-        quiz = Quiz(class_name, question_limit=limit, question_types=[FillKeyword])
-    else:
-        quiz = Quiz(class_name, question_limit=limit)
+    query = (
+        Facts.select(Facts.topic)
+        .groupby(Facts.topic)
+        .where(Facts.class_name == class_name)
+    )
+    cursor = db.execute(*engine.prepare(query))
+    rows = cursor.fetchall()
+    topics = dict(
+        enumerate(sorted((row["topic"] for row in rows), key=natural_sort), start=1)
+    )
+    chosen = []
+    while not chosen:
+        click.echo(f"Known topics for {class_name}:\n")
+        for number, name in topics.items():
+            click.echo(f"  {number:>3}: {name}")
+        selection = click.prompt("\nChoose topics", default="all").strip()
+        if selection == "all":
+            break
+        chosen = find_numbers(selection)
+        if not chosen:
+            click.secho(
+                "Unknown selection, enter numbers separated by commas", fg="red"
+            )
+    topic_list = [topics[k] for k in chosen]
 
-    quiz.start()
+    try:
+        if harder:
+            quiz = Quiz(
+                class_name,
+                topic_list=topic_list,
+                question_limit=limit,
+                question_types=[FillKeyword],
+            )
+        else:
+            quiz = Quiz(class_name, topic_list=topic_list, question_limit=limit)
+
+        quiz.start()
+
+    except QuizError as e:
+        click.secho(str(e), fg="red")
 
 
 @multiflash.command("gui")
